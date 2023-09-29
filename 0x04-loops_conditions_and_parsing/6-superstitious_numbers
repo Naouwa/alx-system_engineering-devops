@@ -11,7 +11,7 @@ do
 		echo "bad luck from China"
 		;;
 		9)
-		echo "bad luch from Japan"
+		echo "bad luck from Japan"
 		;;
 		17)
 		echo "bad luck from Italy"
