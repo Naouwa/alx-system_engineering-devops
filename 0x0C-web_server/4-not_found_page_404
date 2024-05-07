@@ -1,0 +1,46 @@
+#!/usr/bin/env bash
+# Configure Nginx server to give error 404 page
+
+# Check if Nginx is already installed
+if ! command -v nginx &>/dev/null; then
+	sudo apt-get update
+	sudo apt-get -y install nginx
+fi
+# Allow Nginx through the firewall
+sudp allow "Nginx HTTP"
+# Create index.html with "Hello World!" message
+echo -e "Hello World!" | sudo tee /var/www/html/index.html >/dev/null
+# Check if the default Nginx configuration file exists
+if [[ ! -f /etc/nginx/sites-available/default ]]; then
+	# Create the default configuration file
+	sudo tee /etc/nginx/sites-available/default >/dev/null <<EOF
+server {
+    listen 80 default_server;
+    listen [::]:80 default_server;
+
+    root /var/www/html;
+
+    index index.html;
+
+    server_name _;
+
+    location /redirect_me {
+        return 301 https://www.youtube.com/watch?v=QH2-TGUlwu4;
+    }
+
+    location / {
+        try_files \$uri \$uri/ =404;
+    }
+
+    error_page 404 /404.html;
+    location = /404.html {
+        root /var/www/html;
+        internal;
+    }
+}
+EOF
+fi
+# Create custom 404.html file
+echo "Ceci n'est pas une page" | sudo tee /var/www/html/404.html >/dev/null
+# Restart Nginx to apply changes
+sudo service nginx restart
