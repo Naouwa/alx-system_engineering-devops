@@ -1,0 +1,15 @@
+#!/usr/bin/env bash
+# A script to configure web-02 to be identical to web-01.
+
+# Install Nginx
+sudo apt-get update
+sudo apt-get -y install nginx
+
+# Allow Nginx through firewall
+sudo ufw allow "Nginx HTTP"
+
+# Add custom Nginx response header conf
+sudo sed -i '/server_name _;/a \\tadd_header X-Served-By $hostname;' /etc/nginx/sites-available/default
+
+# Restart Nginx to apply changes
+sudo service nginx restart
