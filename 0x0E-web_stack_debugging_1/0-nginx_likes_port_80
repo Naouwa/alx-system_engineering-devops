@@ -1,0 +1,27 @@
+#!/usr/bin/env bash
+# Bash script with the minimum number of commands to automate your fix.
+apt-get update
+apt-get install -y nginx psmisc
+fuser -k 80/tcp
+cat <<EOF > /etc/nginx/sites-available/default
+server {
+    listen 80 default_server;
+    listen [::]:80 default_server;
+    root /var/www/html;
+    index index.html index.htm index.nginx-debian.html;
+    server_name _;
+    location / {
+        try_files \$uri \$uri/ =404;
+    }
+}
+EOF
+
+mkdir -p /var/log/nginx
+mkdir -p /var/www/html
+touch /var/log/nginx/error.log
+touch /var/log/nginx/access.log
+nginx -t
+
+service nginx restart
+
+service nginx status
