@@ -1,0 +1,53 @@
+#!/usr/bin/env bash
+# Script to configure domain zone and display information about subdomains of a domain.
+
+# Function to configure DNS records for a subdomain
+configure_dns() {
+    domain=$1
+    subdomain=$2
+    ip_address=$3
+    echo "$subdomain IN A $ip_address" >> /etc/bind/db.$domain
+    systemctl restart bind9
+}
+
+# Function to query DNS records for a subdomain
+query_dns() {
+    domain=$1
+    subdomain=$2
+
+    # If no record found, print a message
+    result=$(dig +short $subdomain.$domain)
+    if [ -z "$result" ]; then
+        echo "No record found for $subdomain.$domain"
+    else
+        record_type=$(dig +short $subdomain.$domain | awk '{print $4}')
+        echo "The subdomain $subdomain is a $record_type record and points to $result"
+    fi
+}
+
+# Check if the correct number of arguments are provided
+if [ "$#" -lt 1 ] || [ "$#" -gt 3 ]; then
+    echo "Usage: $0 domain [subdomain] [ip_address]"
+    exit 1
+fi
+
+# Assign arguments to variables
+domain=$1
+subdomain=$2
+ip_address=$3
+
+# Configure DNS for www subdomain if IP address is provided
+if [ -n "$ip_address" ]; then
+    configure_dns $domain "www" $ip_address
+    echo "Configured www.$domain to point to $ip_address"
+fi
+
+# Query DNS records for specified subdomain
+if [ -n "$subdomain" ]; then
+    query_dns $domain $subdomain
+else
+    query_dns $domain "www"
+    query_dns $domain "lb-01"
+    query_dns $domain "web-01"
+    query_dns $domain "web-02"
+fi
