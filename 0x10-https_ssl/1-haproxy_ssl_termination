@@ -42,7 +42,7 @@ frontend naouwa.tech-frontend
     bind *:443 ssl crt /etc/haproxy/certs/naouwa.tech.pem
     acl letsencrypt-acl path_beg /.well-known/acme-challenge/
     http-request set-header X-Forwarded-Proto http
-    use_backend letsencrypt-backend if letsencrypt-acl
+    #use_backend letsencrypt-backend if letsencrypt-acl
     use_backend naouwa.tech-www-backend if { hdr(host) -i www.naouwa.tech }
     default_backend naouwa.tech-backend
 
@@ -60,8 +60,8 @@ backend letsencrypt-backend
     server letsencrypt 127.0.0.1:54321
 #--naouwa.tech-params-end--
 
-frontend root-frontend
-    bind *:80
-    http-request redirect location / code 301 if !{ ssl_fc }
-    http-response set-header Content-Type text/html
-    http-response set-body Holberton School
+#frontend root-frontend
+#    bind *:80
+#    http-request redirect location / code 301 if !{ ssl_fc }
+#    http-response set-header Content-Type text/html
+#    http-response set-body Holberton School
