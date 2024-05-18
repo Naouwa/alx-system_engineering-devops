@@ -1,29 +1,19 @@
 #!/usr/bin/env bash
+# Configuring HAProxy load balancer
 
-# Update system and install HAProxy
 sudo apt-get update
 sudo apt-get -y install haproxy
 
-# Set variables for web server IP addresses
-web_01_ip="54.160.79.156"
-web_02_ip="34.207.64.145"
+config="listen load-balancer
+	bind *:80
+	mode http
+	balance roundrobin
+	option httpclose
+	option forwardfor
+	server 409581-web-01 <web-01-54.160.79.156>:80 check
+	server 409581-web-02 <web-02-34.207.64.145>:80 check
+	server 409581-lb-01 <lb-01-54.197.47.183>:80 check"
 
-# Configure HAProxy
-haproxy_config="listen load-balancer
-    bind *:80
-    mode http
-    balance roundrobin
-    option httpclose
-    option forwardfor
-    server 409581-web-01 $web_01_ip:80 check
-    server 409581-web-02 $web_02_ip:80 check"
+echo -e "$config" | sudo tee -a /etc/haproxy/haproxy.cfg >/dev/null
 
-echo "$haproxy_config" | sudo tee /etc/haproxy/haproxy.cfg >/dev/null
-
-# Restart HAProxy
 sudo systemctl restart haproxy
-
-# Test HAProxy configuration
-echo "Testing HAProxy configuration:"
-curl -Is $web_01_ip | grep "X-Served-By: 409581-web-01"
-curl -Is $web_02_ip | grep "X-Served-By: 409581-web-02"
