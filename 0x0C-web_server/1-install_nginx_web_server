@@ -29,7 +29,7 @@ fi
 
 # Create a new index file with "Hello World!"
 log_message "Creating a new index file..."
-echo -e "Hello World!" | sudo tee /var/www/html/index.html > /dev/null
+echo -e "Hello World!\n" | sudo tee /var/www/html/index.html > /dev/null
 
 # Reload Nginx to apply changes
 log_message "Reloading Nginx to apply the changes..."
