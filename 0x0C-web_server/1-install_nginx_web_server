@@ -1,9 +1,38 @@
 #!/usr/bin/env bash
-#Install nginx on your web-01 while nginx listens on port 80
+# Script to configure a new Ubuntu machine by installing Nginx
+# Nginx should listen on port 80 and serve a page with "Hello World!"
 
+# Function to display a message
+log_message() {
+    echo -e "\n$1\n"
+}
 
-sudo apt-get update
-sudo apt-get -y install nginx
-sudo ufw allow "Nginx HTTP"
-echo -e "Hello World!" | sudo tee /var/www/html/index.html >/dev/null
+log_message "Updating package lists and installing Nginx..."
+sudo apt-get update -qq
+sudo apt-get install -y nginx
+
+log_message "Configuring firewall to allow Nginx HTTP traffic..."
+sudo ufw allow 'Nginx HTTP'
+
+log_message "Starting Nginx service..."
 sudo service nginx start
+
+# Ensure ownership and permissions are correctly set
+sudo chown -R "$USER":"$USER" /var/www/html
+sudo chmod -R 755 /var/www/html
+
+# Backup the original index file
+log_message "Backing up the default index file..."
+if [ -f /var/www/html/index.nginx-debian.html ]; then
+	sudo mv /var/www/html/index.nginx-debian.html /var/www/html/index.nginx-debian.html.bak
+fi
+
+# Create a new index file with "Hello World!"
+log_message "Creating a new index file..."
+echo -e "Hello World!" | sudo tee /var/www/html/index.html > /dev/null
+
+# Reload Nginx to apply changes
+log_message "Reloading Nginx to apply the changes..."
+sudo service nginx reload
+
+log_message "Setup complete. Nginx is now serving a page with 'Hello World!' on port 80."
