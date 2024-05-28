@@ -3,8 +3,7 @@
 # Ensure Apache is stopped (if necessary)
 pkill -f apache2
 chown nginx:nginx /etc/nginx/nginx.conf
-chmod 644 /etc/nginx/nginx.conf
-sed -i 's/^user .*/user nginx;/' /etc/nginx/nginx.conf
-sed -i 's/listen 80 default_server;/listen 8080 default_server;/' /etc/nginx/sites-available/default
-sed -i 's/listen \[::\]:80 default_server;/listen \[::\]:8080 default_server;/' /etc/nginx/sites-available/default
-sudo service nginx restart
+chmod a+r /etc/nginx/nginx.conf
+chmod u+w /etc/nginx/nginx.conf
+sed -i s/'80 default_server'/'8080 default_server'/g /etc/nginx/sites-available/default
+sudo -u nginx service nginx restart
