@@ -2,14 +2,9 @@
 # This script configures Nginx to run as the nginx user and listen on port 8080
 # Ensure Apache is stopped (if necessary)
 pkill -f apache2
-
-# Ensure Nginx configuration file is accessible
 chown nginx:nginx /etc/nginx/nginx.conf
 chmod 644 /etc/nginx/nginx.conf
-
-# Update Nginx configuration to run as nginx user and listen on port 8080
 sed -i 's/^user .*/user nginx;/' /etc/nginx/nginx.conf
 sed -i 's/listen 80 default_server;/listen 8080 default_server;/' /etc/nginx/sites-available/default
 sed -i 's/listen \[::\]:80 default_server;/listen \[::\]:8080 default_server;/' /etc/nginx/sites-available/default
-
 sudo service nginx restart
