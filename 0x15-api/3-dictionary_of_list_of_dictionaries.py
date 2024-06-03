@@ -15,7 +15,6 @@ def fetch_data(url):
         response.raise_for_status()
         return response.json()
     except requests.RequestException as err:
-        print(f"An error occurred: {err}")
         return None
 
 
@@ -45,8 +44,6 @@ def export_all_to_json():
     filename = 'todo_all_employees.json'
     with open(filename, 'w', encoding='UTF8') as jsonfile:
         json.dump(all_tasks, jsonfile)
-
-    print(f"Data exported to {filename}")
 
 
 if __name__ == "__main__":
