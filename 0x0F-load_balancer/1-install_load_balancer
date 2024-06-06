@@ -1,19 +1,24 @@
 #!/usr/bin/env bash
-# Configuring HAProxy load balancer
-
-sudo apt-get update
+# Installs and setup haproxy
+# Install HAProxy
+sudo apt-get -y update
 sudo apt-get -y install haproxy
 
-config="listen load-balancer
-	bind *:80
-	mode http
-	balance roundrobin
-	option httpclose
-	option forwardfor
-	server 409581-web-01 <web-01-54.160.79.156>:80 check
-	server 409581-web-02 <web-02-34.207.64.145>:80 check
-	server 409581-lb-01 <lb-01-54.197.47.183>:80 check"
+# Enable HAProxy service
+echo "ENABLED=1" > /etc/default/haproxy
 
-echo -e "$config" | sudo tee -a /etc/haproxy/haproxy.cfg >/dev/null
+# Append configuration to haproxy.cfg
+echo "
+frontend naouwa.tech
+        bind *:80
+        mode http
+        default_backend servers
 
-sudo systemctl restart haproxy
+backend servers
+        balance roundrobin
+        server 409581-web-01 54.160.79.156:80 check
+        server 409581-web-02 34.207.64.145:80 check" >> /etc/haproxy/haproxy.cfg
+
+sudo ufw allow 80/tcp
+# Start HAProxy service
+sudo service haproxy restart
