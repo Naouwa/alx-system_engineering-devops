@@ -1,0 +1,47 @@
+server {
+    listen 80 default_server;
+    listen [::]:80 default_server;
+
+    server_name naouwa.tech;
+    rewrite ^/redirect_me https://www.youtube.com/watch?v=QH2-TGUlwu4 permanent;
+    error_page 404 /custom_404.html;
+    index index.html index.htm;
+    error_page 404 /404.html;
+    add_header X-Served-By $hostname;
+
+    location / {
+        proxy_pass http://localhost:5003;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+
+        # Optional: To handle query parameters as well
+        if ($query_string) {
+            rewrite ^/(.*)$ /$1?$query_string;
+        }
+    }
+
+    location /static/ {
+        alias /path/to/AirBnB_clone_v4/web_dynamic/static/;
+        expires 30d;
+        access_log off;
+    }
+
+    location = /favicon.ico {
+        alias /path/to/AirBnB_clone_v4/web_dynamic/static/images/favicon.ico;
+    }
+
+    location = /robots.txt {
+        alias /path/to/AirBnB_clone_v4/web_dynamic/static/robots.txt;
+    }
+
+    location / {
+        try_files $uri $uri/ =404;
+    }
+
+    location = /404.html {
+        root /var/www/error/;
+        internal;
+    }
+}

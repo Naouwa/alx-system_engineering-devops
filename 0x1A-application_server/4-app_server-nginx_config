@@ -1,0 +1,50 @@
+server {
+    listen 80 default_server;
+    listen [::]:80 default_server;
+
+    server_name naouwa.tech;
+    rewrite ^/redirect_me https://www.youtube.com/watch?v=QH2-TGUlwu4 permanent;
+    error_page 404 /custom_404.html;
+    index index.html index.htm;
+    error_page 404 /404.html;
+    add_header X-Served-By $hostname;
+
+    location / {
+        root /var/www/html/;
+        try_files $uri $uri/ =404;
+    }
+
+    location /airbnb-onepage/ {
+        proxy_pass http://localhost:5000;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+    }
+
+    location /airbnb-dynamic/number_odd_or_even/ {
+        proxy_pass http://localhost:5001;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+
+        # Optional: To handle query parameters as well
+        if ($query_string) {
+            rewrite ^/airbnb-dynamic/number_odd_or_even/(.*)$ /airbnb-dynamic/number_odd_or_even/$1?$query_string;
+        }
+    }
+
+    location /api/ {
+        proxy_pass http://localhost:5002/;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+    }
+
+    location = /404.html {
+        root /var/www/error/;
+        internal;
+    }
+}
